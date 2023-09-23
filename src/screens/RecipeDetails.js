@@ -1,10 +1,12 @@
 import { View, Text, StatusBar, Image, ScrollView, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-native-responsive-screen';
 import { AntDesign, Ionicons, SimpleLineIcons } from '@expo/vector-icons';
 import Loading from '../components/Loading';
+import YoutubeIframe from 'react-native-youtube-iframe';
+import Animated from 'react-native-reanimated';
 
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -14,15 +16,15 @@ const getRandomNumber = (min, max) => {
 export default function RecipeDetails() {
   const route = useRoute();
   const { itemData } = route.params;
-
+  const navigation = useNavigation();
 
   const [isFavourate, setisFavourate] = useState(false)
   const [RecipeData, setRecipeData] = useState([])
   const [loading, setLoading] = useState(true)
   const [IngingredientData, setIngingredient] = useState([])
   const [QuentityData, setQuentity] = useState([])
-
-
+  const [readMore, setreadMore] = useState(false)
+  const [text, settext] = useState(null)
 
   const randomTime = getRandomNumber(4, 60);
   const randomCal = getRandomNumber(10, 1000);
@@ -30,7 +32,6 @@ export default function RecipeDetails() {
   useEffect(() => {
     setRecipeData([])
     getRecipeData(itemData?.idMeal);
-    RecipeIngredients({ RecipeData });
   }, [])
 
   const getRecipeData = async (id) => {
@@ -39,6 +40,8 @@ export default function RecipeDetails() {
       // console.log(response?.data?.meals)
       if (response?.data) {
         setRecipeData(response?.data?.meals[0])
+        settext(response?.data?.meals[0]?.strInstructions.slice(0, 100))
+
         setLoading(false)
       }
     } catch (error) {
@@ -46,34 +49,38 @@ export default function RecipeDetails() {
 
     }
   }
-
-  const RecipeIngredients = ({ RecipeData }) => {
-    // Combine non-empty ingredient and measure pairs into an array of strings
-    let Ingingredient = []
-    let Quentity = []
-    for (let i = 1; i <= 20; i++) {
-      const ingredient = RecipeData?.[`strIngredient${i}`];
-      const measure = RecipeData?.[`strMeasure${i}`];
-
-      if (ingredient && measure && typeof ingredient === 'string' && typeof measure === 'string') {
-        const trimmedIngredient = ingredient.trim();
-        const trimmedMeasure = measure.trim();
-        if (trimmedIngredient !== '' && trimmedMeasure !== '') {
-          Ingingredient.push(`${trimmedIngredient}`);
-          Quentity.push(`${trimmedMeasure}`);
-          console.log("Data is ", Ingingredient)
-          console.log("qu is ", Quentity)
-        }
-        setIngingredient(Ingingredient)
-        setQuentity(Quentity)
+  const handelBack = () => {
+    navigation.goBack();
+    // navigation.navigate('Home')
+  }
+  const getYoutubeId = url => {
+    if (url) { // Check if url is not null or undefined
+      const regex = /[?&]v=([^&]+)/;
+      const match = url.match(regex);
+      if (match && match[1]) {
+        // { console.log("id is ", match[1]) }
+        return match[1];
       }
     }
+    return null;
   }
+  const RecipeIngredients = (RecipeData) => {
+
+    if (!RecipeData) return [];
+    let indexes = [];
+    for (let i = 0; i <= 20; i++) {
+      if (RecipeData[`strIngredient${i}`]) {
+        indexes.push(i)
+        // console.log("indexs  is ", indexes)
+      }
+    }
+    return indexes;
+  }
+
   {
-    console.log("qqqqq is ", IngingredientData)
-    console.log("dddddd is ", QuentityData)
+    // console.log("dddddd is ", QuentityData)
   }
-  // { console.log("Data is ", ingredient) }
+  // { console.log("yt is ", RecipeData?.strYoutube) }
   return (
 
 
@@ -82,13 +89,15 @@ export default function RecipeDetails() {
         <StatusBar style={"light"} />
         {/* food img */}
         <View className='flex justify-center items-center mt-[2px]'>
-          <Image source={{ uri: RecipeData?.strMealThumb, alt: RecipeData?.strMeal }}
-            style={{ width: wp(98), height: hp(50), borderTopLeftRadius: 25, borderTopRightRadius: 25, borderBottomLeftRadius: 40, borderBottomRightRadius: 40 }} />
+          <Animated.Image source={{ uri: RecipeData?.strMealThumb, alt: RecipeData?.strMeal }}
+            style={{ width: wp(98), height: hp(50), borderTopLeftRadius: 25, borderTopRightRadius: 25, borderBottomLeftRadius: 40, borderBottomRightRadius: 40 }}
+            sharedTransitionTag={RecipeData?.strMeal}
+          />
         </View>
 
         {/* back btn */}
         <View className='absolute flex-row items-center justify-between w-full px-2 pt-14'>
-          <TouchableOpacity style={{ width: hp(3.3), height: hp(3.3) }} className='flex items-center justify-center rounded-full bg-slate-100'>
+          <TouchableOpacity onPress={handelBack} style={{ width: hp(3.6), height: hp(3.6) }} className='flex items-center justify-center rounded-full bg-slate-100'>
 
             <Ionicons name="arrow-back-outline" size={hp(3.3)} color="black" />
 
@@ -119,11 +128,13 @@ export default function RecipeDetails() {
               <View className='space-y-2 '>
                 <Text style={{ fontSize: hp(3) }} className='font-bold text-neutral-500 '>{RecipeData?.strMeal}
                 </Text>
+                  {/* <Text style={{ fontSize: hp(3) }} className='font-bold text-neutral-500 '>{RecipeData?.idMeal}
+                  </Text> */}
                 <Text style={{ fontSize: hp(2) }} className='font-bold text-neutral-700 '>{RecipeData?.strArea}
                 </Text>
 
               </View>
-
+                {/* 3 designs time, cal, servings */}
               <View className='flex-row justify-around'>
                 <View className='p-2 rounded-full bg-amber-300'>
                   <View style={{ height: hp(6.5), width: hp(6.5) }} className='flex items-center justify-center p-1 bg-white rounded-full'>
@@ -160,17 +171,73 @@ export default function RecipeDetails() {
 
               {/* Ingredients */}
 
-              <View className='space-y-5'>
-                <Text style={{ fontSize: hp(2) }} className='font-bold text-neutral-700'>Ingredient</Text>
+                <View className='space-y-5'>
+                  <Text style={{ fontSize: hp(2) }} className='flex-1 font-bold text-neutral-700'>Ingredient</Text>
 
-                <View className='flex items-center space-y-2'>
-                  {IngingredientData.map((pair, index) => (
-                    <Text key={index} style={{ fontSize: hp(2.4) }} className='font-semibold text-neutral-600'>
-                      {pair}
-                    </Text>
-                  ))}
+                  <View className='ml-3 space-y-4 '>
+                    {
+
+                      RecipeIngredients(RecipeData).map((i, index) => {
+
+                        return (
+
+                          <>
+                            <View style={{ width: hp(10) }} className='flex-row items-center justify-start space-x-4 '>
+                              <View style={{ width: hp(1.5), height: hp(1.5), marginTop: hp(0.5) }} className='rounded-full bg-amber-300' />
+                              <View key={index} className='flex-row space-x-2 '>
+                                <Text style={{ fontSize: hp(1.8) }} className='font-semibold text-neutral-600'>
+                                  {RecipeData[`strIngredient${i}`]}
+                                </Text>
+                                <Text style={{ fontSize: hp(1.8) }} className='font-semibold text-neutral-600'>
+                                  ------
+                                </Text>
+                                <Text style={{ fontSize: hp(1.8) }} className='font-bold '>
+                                  {RecipeData[`strMeasure${i}`]}
+                                </Text>
+                              </View>
+                            </View>
+                          </>
+                        )
+                      })
+                    }
+                  </View>
                 </View>
-              </View>
+
+                {/* instructions */}
+                <View className='space-y-5'>
+                  <Text style={{ fontSize: hp(2) }} className='flex-1 font-bold text-neutral-700'>Instructions</Text>
+
+                  <View className='flex space-x-2'>
+                    <Text style={{ fontSize: hp(1.9), flex: 1 }} className='text-neutral-700'>
+                      {text}
+                      {!readMore && ' ... '}
+                    </Text>
+                    <Text
+                      style={{ fontSize: hp(1.5) }}
+                      className='font-bold text-neutral-900'
+                      onPress={() => {
+                        if (!readMore) {
+                          settext(RecipeData?.strInstructions)
+                          setreadMore(true)
+                        } else {
+                          settext(RecipeData?.strInstructions.slice(0, 100))
+                          setreadMore(false)
+                        }
+                      }}
+                    >
+                      {readMore ? 'Show Less' : 'Read More'}
+                    </Text>
+                  </View>
+                </View>
+                {/* youtuve video frame */}
+                {/* <View className='space-y-5'>
+                  <Text style={{ fontSize: hp(2) }} className='flex-1 font-bold text-neutral-700'>Recipe Video</Text>
+                  {RecipeData?.strYoutube ? (
+                    <View>
+                      <YoutubeIframe videoId={getYoutubeId(RecipeData?.strYoutube)} height={hp(35)} />
+                    </View>
+                  ) : null}
+                </View> */}
             </View>
           )
         }

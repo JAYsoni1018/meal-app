@@ -7,6 +7,7 @@ import Animated, { FadeInDown, LightSpeedInLeft, LightSpeedInRight, LightSpeedOu
 import Loading from './Loading';
 import { CachedImage } from '../helpers/image';
 import { useNavigation } from '@react-navigation/native';
+import RecipeCard from './RecipeCard';
 
 
 export default function Recipes({ categories, recipeData }) {
@@ -35,29 +36,30 @@ export default function Recipes({ categories, recipeData }) {
         </View>
     )
 }
-const RecipeCard = ({ item, index, navigation }) => {
 
-    let isEven = index % 2 == 0;
-    return (
-        // {`${isEven ? { LightSpeedInRight } : { LightSpeedInLeft }}`}
-        // <Animated.View entering={isEven ? FadeInDown.duration(500) : FadeInDown.duration(500)}  >
-        <Animated.View entering={isEven ? LightSpeedInLeft.duration(500) : LightSpeedInRight.duration(500)}>
-            <Pressable style={{ width: '100%', paddingLeft: isEven ? 0 : 8, paddingRight: isEven ? 8 : 0 }} className="flex justify-center"
-                onPress={() => navigation.navigate('RecipesData', { itemData: item })}>
+// const RecipeCard = ({ item, index, navigation }) => {
 
-                <View style={{ marginTop: hp(2.2) }} className=''>
-                    <Image source={{ uri: item?.strMealThumb, alt: item?.strMeal }}
-                        resizeMode='cover'
-                        style={{ width: '100%', height: isEven ? hp(26) : hp(29), borderRadius: 36 }}
-                        className="bg-black/5 " />
-                    {/* <CachedImage uri={item?.strMealThumb}
-                        resizeMode='cover'
-                        style={{ width: '100%', height: isEven ? hp(26) : hp(29), borderRadius: 36 }}
-                        className="bg-black/5 " /> */}
-                    <Text style={{ fontSize: hp(1.5) }} className='py-1 text-center'>{item?.strMeal.length > 15 ? item?.strMeal.slice(0, 20) + '...' : item?.strMeal}</Text>
-                </View>
-            </Pressable>
-        </Animated.View>
-    )
-    // isEven ? hp(26) : hp(30)
-}
+//     let isEven = index % 2 == 0;
+//     return (
+
+//         <Animated.View entering={isEven ? LightSpeedInLeft.duration(500) : LightSpeedInRight.duration(500)}>
+//             <Pressable style={{ width: '100%', paddingLeft: isEven ? 0 : 8, paddingRight: isEven ? 8 : 0 }} className="flex justify-center"
+//                 onPress={() => navigation.navigate('RecipesData', { itemData: item })}>
+
+//                 <View style={{ marginTop: hp(2.2) }}  >
+//                     <Image source={{ uri: item?.strMealThumb, alt: item?.strMeal }}
+//                         resizeMode='cover'
+//                         style={{ width: '100%', height: isEven ? hp(26) : hp(29), borderRadius: 36 }}
+//                         className="bg-black/5 "
+//                         sharedTransitionTag={item.strMeal} />
+//                     {/* <CachedImage uri={item?.strMealThumb}
+//                         resizeMode='cover'
+//                         style={{ width: '100%', height: isEven ? hp(26) : hp(29), borderRadius: 36 }}
+//                         className="bg-black/5 " /> */}
+//                     <Text style={{ fontSize: hp(1.5) }} className='py-1 text-center'>{item?.strMeal.length > 15 ? item?.strMeal.slice(0, 20) + '...' : item?.strMeal}</Text>
+//                 </View>
+//             </Pressable>
+//         </Animated.View>
+//     )
+//     // isEven ? hp(26) : hp(30)
+// }
