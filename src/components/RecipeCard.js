@@ -18,11 +18,11 @@ export default function RecipeCard({ item, index }) {
                 onPress={handleNavigation}>
 
                 <View style={{ marginTop: hp(2.2) }}  >
-                    <Animated.Image source={{ uri: item?.strMealThumb, alt: item?.strMeal }}
+                    <Image source={{ uri: item?.strMealThumb, alt: item?.strMeal }}
                         resizeMode='cover'
                         style={{ width: '100%', height: isEven ? hp(26) : hp(29), borderRadius: 36 }}
                         className="bg-black/5 "
-                        sharedTransitionTag={item?.strMeal}
+                        // sharedTransitionTag={item.strMeal}
                     />
                     {/* <CachedImage uri={item?.strMealThumb}
                         resizeMode='cover'

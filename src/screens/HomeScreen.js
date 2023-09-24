@@ -5,6 +5,7 @@ import { Feather, MaterialIcons } from '@expo/vector-icons';
 import Categories from '../components/Categories';
 import axios from 'axios';
 import Recipes from '../components/Recipes';
+import NotFound from '../components/NotFound';
 
 export default function HomeScreen() {
     const [loader, setLoader] = useState(false)
@@ -15,17 +16,27 @@ export default function HomeScreen() {
     }, [])
 
 
-
+    const [searchTerm, setsearchTerm] = useState("");
     const [activeCategory, setactiveCategory] = useState("Beef")
     const [categoryData, setcategoryData] = useState([])
     const [Meals, setMeals] = useState([])
+    const [SearchMeals, setSearchMeals] = useState([])
+    const [searchString, setsearchString] = useState("");
 
+    const handelText = (text) => {
+        setsearchString(text)
+        setsearchTerm(text)
+        getSearchrecipe(searchTerm)
+    }
     const handelChangeCategory = (category) => {
         // console.log("handelchange category....", category)
 
         getrecipe(category)
         setactiveCategory(category)
         setMeals([])
+        setSearchMeals([])
+        setsearchString("")
+        setsearchTerm("")
     }
     const getcategory = async () => {
         try {
@@ -42,9 +53,21 @@ export default function HomeScreen() {
     const getrecipe = async (category) => {
         try {
             const response = await axios.get(`https://themealdb.com/api/json/v1/1/filter.php?c=${category}`);
-            // console.log(response?.data?.meals)
+            // console.log(response?.data?.meals[0]?.strMeal)
             if (response?.data) {
                 setMeals(response?.data?.meals)
+            }
+        } catch (error) {
+            console.log("error is :", error.message)
+
+        }
+    }
+    const getSearchrecipe = async (s) => {
+        try {
+            const response = await axios.get(`https://themealdb.com/api/json/v1/1/search.php?s=${s}`);
+            // console.log("setSearchMeals ", response?.data?.meals.length)
+            if (response?.data) {
+                setSearchMeals(response?.data?.meals || [])
             }
         } catch (error) {
             console.log("error is :", error.message)
@@ -90,9 +113,13 @@ export default function HomeScreen() {
                         <TouchableOpacity>
                             <MaterialIcons name="search" size={hp(2.9)} color="black" />
                         </TouchableOpacity>
-                        <TextInput placeholder='Search Food...'
+                        <TextInput
+                            placeholder='Search Food'
                             style={{ fontSize: hp(1.7), paddingHorizontal: hp(1.9) }}
-                            className=' text-base font-semibold text-[#555]   '
+                            className=' text-base font-semibold text-[#555]'
+                            value={searchTerm}
+
+                            onChangeText={handelText}
 
                         />
                         <TouchableOpacity className='ml-auto'>
@@ -105,9 +132,11 @@ export default function HomeScreen() {
                 {/* categories */}
                 <View className=''>
                     {
+
                         categoryData.length > 0 ? (
-                            <Categories category={categoryData} activeCategory={activeCategory} handelChangeCategory={handelChangeCategory} />
+                            <Categories category={categoryData} activeCategory={(searchString.length > 0) ? "" : activeCategory} handelChangeCategory={handelChangeCategory} />
                         ) : ""
+
                     }
 
                 </View>
@@ -115,7 +144,18 @@ export default function HomeScreen() {
 
                 {/* recipes */}
                 <View className=''>
-                    <Recipes categories={categoryData} recipeData={Meals} />
+                    {
+                        (searchString.length > 0 && !SearchMeals.length > 0) ? (
+
+                            <NotFound />
+
+                        ) : (
+
+                            <Recipes categories={categoryData} recipeData={searchString.length == 0 ? Meals : SearchMeals} />
+
+
+                        )
+                    }
                 </View>
 
             </ScrollView>

@@ -6,7 +6,7 @@ import { widthPercentageToDP as wp, heightPercentageToDP as hp } from 'react-nat
 import { AntDesign, Ionicons, SimpleLineIcons } from '@expo/vector-icons';
 import Loading from '../components/Loading';
 import YoutubeIframe from 'react-native-youtube-iframe';
-import Animated from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown } from 'react-native-reanimated';
 
 const getRandomNumber = (min, max) => {
   return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -88,35 +88,35 @@ export default function RecipeDetails() {
       <ScrollView className="flex bg-white" showVerticalScrollIndicator="false" contentContainerStyle={{ paddingBottom: 30 }} >
         <StatusBar style={"light"} />
         {/* food img */}
-        <View className='flex justify-center items-center mt-[2px]'>
-          <Animated.Image source={{ uri: RecipeData?.strMealThumb, alt: RecipeData?.strMeal }}
+        <View className='flex items-center '>
+          <Image source={{ uri: RecipeData?.strMealThumb, alt: RecipeData?.strMeal }}
             style={{ width: wp(98), height: hp(50), borderTopLeftRadius: 25, borderTopRightRadius: 25, borderBottomLeftRadius: 40, borderBottomRightRadius: 40 }}
-            sharedTransitionTag={RecipeData?.strMeal}
+            // sharedTransitionTag={RecipeData.strMeal}
           />
         </View>
 
         {/* back btn */}
-        <View className='absolute flex-row items-center justify-between w-full px-2 pt-14'>
-          <TouchableOpacity onPress={handelBack} style={{ width: hp(3.6), height: hp(3.6) }} className='flex items-center justify-center rounded-full bg-slate-100'>
+        <Animated.View entering={FadeIn.delay(600).duration(1000)} className='absolute flex-row items-center justify-between w-full px-2 pt-14'>
+          <TouchableOpacity onPress={handelBack} style={{ width: hp(4.5), height: hp(4.5) }} className='flex items-center justify-center rounded-full bg-slate-400'>
 
-            <Ionicons name="arrow-back-outline" size={hp(3.3)} color="black" />
+            <Ionicons name="arrow-back-outline" size={hp(3.3)} color="#FCD34D" />
 
           </TouchableOpacity>
-          <TouchableOpacity style={{ width: hp(3.5), height: hp(3.5) }} className='flex items-center justify-center rounded-full bg-slate-100'
+          <TouchableOpacity style={{ width: hp(4.5), height: hp(4.5) }} className='flex items-center justify-center rounded-full bg-slate-400'
             onPress={() => setisFavourate(!isFavourate)}>
             {
               isFavourate ? (
-                <Ionicons name="heart-sharp" size={hp(2.8)} color="red" />
+                <Ionicons name="heart-sharp" size={hp(2.8)} color="#FCD34D" />
 
               ) : (
-                <Ionicons name="heart-outline" size={hp(2.8)} color="black" />
+                  <Ionicons name="heart-outline" size={hp(2.8)} color="#FCD34D" />
 
 
               )
             }
 
           </TouchableOpacity>
-        </View>
+        </Animated.View>
 
         {/* meal description */}
         {
@@ -125,7 +125,7 @@ export default function RecipeDetails() {
 
           ) : (
             <View className='flex justify-between px-4 space-y-6 pt-9'>
-              <View className='space-y-2 '>
+                <Animated.View entering={FadeInDown.duration(600).springify().damping(12)} className='space-y-2 '>
                 <Text style={{ fontSize: hp(3) }} className='font-bold text-neutral-500 '>{RecipeData?.strMeal}
                 </Text>
                   {/* <Text style={{ fontSize: hp(3) }} className='font-bold text-neutral-500 '>{RecipeData?.idMeal}
@@ -133,9 +133,9 @@ export default function RecipeDetails() {
                 <Text style={{ fontSize: hp(2) }} className='font-bold text-neutral-700 '>{RecipeData?.strArea}
                 </Text>
 
-              </View>
+                </Animated.View>
                 {/* 3 designs time, cal, servings */}
-              <View className='flex-row justify-around'>
+                <Animated.View entering={FadeInDown.springify().damping(12).delay(200)} className='flex-row justify-around'>
                 <View className='p-2 rounded-full bg-amber-300'>
                   <View style={{ height: hp(6.5), width: hp(6.5) }} className='flex items-center justify-center p-1 bg-white rounded-full'>
                     <AntDesign name="clockcircleo" size={hp(3)} color="black" />
@@ -167,11 +167,11 @@ export default function RecipeDetails() {
                     <Text style={{ fontSize: hp(1.2) }} className='font-semibold text-neutral-600'>Servings</Text>
                   </View>
                 </View>
-              </View>
+                </Animated.View>
 
               {/* Ingredients */}
 
-                <View className='space-y-5'>
+                <Animated.View entering={FadeInDown.springify().damping(12).delay(400)} className='space-y-5'>
                   <Text style={{ fontSize: hp(2) }} className='flex-1 font-bold text-neutral-700'>Ingredient</Text>
 
                   <View className='ml-3 space-y-4 '>
@@ -201,10 +201,10 @@ export default function RecipeDetails() {
                       })
                     }
                   </View>
-                </View>
+                </Animated.View>
 
                 {/* instructions */}
-                <View className='space-y-5'>
+                <Animated.View entering={FadeInDown.springify().damping(12).delay(600)} className='space-y-5'>
                   <Text style={{ fontSize: hp(2) }} className='flex-1 font-bold text-neutral-700'>Instructions</Text>
 
                   <View className='flex space-x-2'>
@@ -228,7 +228,7 @@ export default function RecipeDetails() {
                       {readMore ? 'Show Less' : 'Read More'}
                     </Text>
                   </View>
-                </View>
+                </Animated.View>
                 {/* youtuve video frame */}
                 {/* <View className='space-y-5'>
                   <Text style={{ fontSize: hp(2) }} className='flex-1 font-bold text-neutral-700'>Recipe Video</Text>
