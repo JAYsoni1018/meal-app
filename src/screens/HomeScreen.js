@@ -38,6 +38,14 @@ export default function HomeScreen() {
         setsearchString("")
         setsearchTerm("")
     }
+
+    const handelClearText = () => {
+        getrecipe(activeCategory)
+        setMeals([])
+        setSearchMeals([])
+        setsearchString("")
+        setsearchTerm("")
+    }
     const getcategory = async () => {
         try {
             const response = await axios.get('https://themealdb.com/api/json/v1/1/categories.php');
@@ -115,17 +123,22 @@ export default function HomeScreen() {
                         </TouchableOpacity>
                         <TextInput
                             placeholder='Search Food'
-                            style={{ fontSize: hp(1.7), paddingHorizontal: hp(1.9) }}
+                            style={{ fontSize: hp(1.7), paddingHorizontal: hp(1.9), width: '100%' }}
                             className=' text-base font-semibold text-[#555]'
                             value={searchTerm}
 
                             onChangeText={handelText}
 
                         />
-                        <TouchableOpacity className='ml-auto'>
-                            <MaterialIcons name="cancel" size={hp(2.9)} color="black" />
+                        {
+                            searchString.length > 0 ? (
+                                <TouchableOpacity onPress={handelClearText} className='ml-auto'>
+                                    <MaterialIcons name="cancel" size={hp(2.9)} color="black" />
 
-                        </TouchableOpacity>
+                                </TouchableOpacity>
+                            ) : ""
+                        }
+
                     </View>
                 </View>
 
